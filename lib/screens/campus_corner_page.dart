@@ -1,0 +1,305 @@
+import 'package:flutter/material.dart';
+import 'pomodoro_timer_page.dart';
+import 'idea_cloud_page.dart';
+import 'upcoming_event_page.dart';
+import 'au_poll_page.dart';
+import 'study_sessions_page_simple.dart';
+import 'shop_and_lost_found_page.dart';
+import '../services/user_service.dart';
+
+class CampusCornerPage extends StatefulWidget {
+  @override
+  State<CampusCornerPage> createState() => _CampusCornerPageState();
+}
+
+class _CampusCornerPageState extends State<CampusCornerPage> {
+  bool _isLoading = true;
+  String _userName = 'User';
+  String _userEmail = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final response = await UserService.getCurrentUser();
+      final userData = response['data'];
+
+      if (mounted) {
+        setState(() {
+          _userName = userData['email']?.split('@')[0] ?? 'User';
+          _userEmail = userData['email'] ?? '';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFE3F2FD),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double maxWidth = constraints.maxWidth > 600
+              ? 400
+              : constraints.maxWidth * 0.98;
+          return Center(
+            child: Container(
+              width: maxWidth,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 32.0,
+                    horizontal: 8.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 32,
+                            backgroundColor: Colors.blue[300],
+                            child: _isLoading
+                                ? CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  )
+                                : Text(
+                                    _userName.isNotEmpty
+                                        ? _userName[0].toUpperCase()
+                                        : 'U',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _userName,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  _userEmail,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.settings, color: Colors.grey[800]),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 24),
+                      GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        childAspectRatio: 2.2,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ShopAndLostFoundPage(),
+                                ),
+                              );
+                            },
+                            child: _CampusTile(
+                              title: 'Shop & Lost Found',
+                              color: Colors.white,
+                              icon: Icons.shopping_bag,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PomodoroTimerPage(),
+                                ),
+                              );
+                            },
+                            child: _CampusTile(
+                              title: 'Pomodoro Study Timer',
+                              color: Colors.blue[100],
+                              icon: Icons.timer,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpcomingEventPage(),
+                                ),
+                              );
+                            },
+                            child: _CampusTile(
+                              title: 'Events',
+                              color: Colors.white,
+                              icon: Icons.event,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AuPollPage(),
+                                ),
+                              );
+                            },
+                            child: _CampusTile(
+                              title: 'AU Poll',
+                              color: Colors.white,
+                              icon: Icons.poll,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => IdeaCloudPage(),
+                                ),
+                              );
+                            },
+                            child: _CampusTile(
+                              title: 'Idea Cloud',
+                              color: Colors.blue[100],
+                              icon: Icons.cloud,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudySessionsPage(),
+                                ),
+                              );
+                            },
+                            child: _CampusTile(
+                              title: 'Study Buddy',
+                              color: Colors.white,
+                              icon: Icons.groups,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 32),
+                      Center(
+                        child: SizedBox(
+                          width: 200,
+                          height: 52,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              elevation: 0,
+                            ),
+                            icon: Icon(Icons.logout, size: 28),
+                            label: Text(
+                              'Logout',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                '/signin',
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _CampusTile extends StatelessWidget {
+  final String title;
+  // ...existing code...
+  final Color? color;
+  final IconData? icon;
+
+  const _CampusTile({
+    required this.title,
+    // ...existing code...
+    this.color,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color ?? Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      padding: EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (icon != null) Icon(icon, color: Colors.grey[800]),
+          if (icon != null) SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                // ...existing code...
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
